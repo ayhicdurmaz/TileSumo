@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using DG.Tweening;
 
 public class GameManager : MonoBehaviour
 {
     [SerializeField] public Color[] gameColorLight = new Color[6];
-    //[SerializeField] Color[] gameColorDark; Maybe i will add later
 
     //Grid Settings
     [SerializeField] private GameObject tilePrefabs;
@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     //Tile Creation Values
     [SerializeField] public int desiredNumTileCount, numTileCount, creationIndex, numberInTile, pressCounter = 0;
     MatrixGenerator mg;
+    GameScreenUtility gsu;
 
     //Adding;
     public int sum, iterationValue = 3, minScoreToUpgradeIterationVal = 50, max = 9, min = 1;
@@ -24,34 +25,27 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TMP_Text scoreText, timeText, scoreEndText, highScoreText;
 
     public float score, highScore, timer = 16, extraTime = 3f;
-    public bool isGameOver = false;
-
-    //Animations
-    Animations anim;
-    [SerializeField] GameObject textTime, textScore, btnPause;
-    public bool startGame = false;
+    public bool isGameOver = false, isGameStartable = false;
 
     private void Start(){
         Camera.main.backgroundColor = gameColorLight[0];
-        tiles = new GameObject[(int)Mathf.Pow(gridDimension, 2)]; 
-        mg = this.GetComponent<MatrixGenerator>(); 
-        anim = this.GetComponent<Animations>();
-        mg.FullMatrixInit(min, max);
-        highScore = PlayerPrefs.GetInt("HighScore");
-        anim.GameScreenUIRight(scoreText.gameObject, 1);
-        anim.GameScreenUILeft(timeText.gameObject, 1);
-        anim.GameScreenUIUp(textTime.gameObject, 0.5f);
-        anim.GameScreenUIUp(textScore.gameObject, 0.5f);
-        anim.GameScreenUIUp(btnPause.gameObject, 0.5f);
-        StartCoroutine(GridMaker());
+        Camera.main.gameObject.transform.DOLocalMoveY(0, 0.25f).From(10).OnComplete(() => {
+            tiles = new GameObject[(int)Mathf.Pow(gridDimension, 2)]; 
+            mg = this.GetComponent<MatrixGenerator>(); 
+            gsu = this.GetComponent<GameScreenUtility>(); 
+            mg.FullMatrixInit(min, max);
+            highScore = PlayerPrefs.GetInt("HighScore");
+            StartCoroutine(GridMaker());
+        });
+        
     }
 
     void Update(){
-        if(!isGameOver && startGame){
+        if(!isGameOver && isGameStartable && !gsu.isOnPause){
             CreateTiles();
             TileOnTouch();
             ScoreAndTimeController();
-        }     
+        }
     }
 
     public IEnumerator GridMaker(){
@@ -68,12 +62,12 @@ public class GameManager : MonoBehaviour
                     sum = mg.GetMainNumber(iterationValue);
                     tiles[_middleTile].GetComponent<Tile>().UpdateTileSettings(gameColorLight[5], gameColorLight[0], 7f, sum, desiredNumTileCount+1, true);
                 }
-                anim.GridAnimation(tiles[k]);
+                tiles[k].transform.DOScale(new Vector3(x,x,1), 0.1f).From(0).SetEase(Ease.OutBounce);
                 k++;
-                yield return new WaitForSeconds(0.05f);
+                yield return new WaitForSeconds(0.025f);
             }
         }
-        startGame = true;
+        isGameStartable = true;
         yield return null;
     }
 
@@ -86,7 +80,6 @@ public class GameManager : MonoBehaviour
                     mg.UpdateMatrix(creationIndex, min, max);
                 }
                 scrptTile.UpdateTileSettings(gameColorLight[3], gameColorLight[0], 7f, mg.SetTileNumber(creationIndex), creationIndex, true);
-                anim.TileOnTouch(scrptTile.gameObject);
                 numTileCount++;
                 creationIndex++;           
             }
@@ -107,7 +100,6 @@ public class GameManager : MonoBehaviour
                         numTileCount--;
                         pressCounter++;
                         tiles[(int)((Mathf.Pow(gridDimension,2)-1)/2)].GetComponent<Tile>().UpdateTileSettings(gameColorLight[5], gameColorLight[0], 7f, sum, desiredNumTileCount+1, true);
-                        anim.TileOnTouch(scrptTile.gameObject);
                     }
                 }
             }
