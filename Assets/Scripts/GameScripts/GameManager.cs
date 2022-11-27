@@ -29,15 +29,41 @@ public class GameManager : MonoBehaviour
 
     private void Start(){
         Camera.main.backgroundColor = gameColorLight[0];
-        Camera.main.gameObject.transform.DOLocalMoveY(0, 0.25f).From(10).OnComplete(() => {
-            tiles = new GameObject[(int)Mathf.Pow(gridDimension, 2)]; 
-            mg = this.GetComponent<MatrixGenerator>(); 
-            gsu = this.GetComponent<GameScreenUtility>(); 
+        if(Singleton.isFromReplay){
+            Camera.main.gameObject.transform.DOLocalMoveX(0, 0.25f).From(-10).OnComplete(() => {
+                tiles = new GameObject[(int)Mathf.Pow(gridDimension, 2)]; 
+                mg = this.GetComponent<MatrixGenerator>(); 
+                gsu = this.GetComponent<GameScreenUtility>(); 
+                mg.FullMatrixInit(min, max);
+                highScore = PlayerPrefs.GetInt("HighScore");
+                StartCoroutine(GridMaker());
+            });
+        }else{
+            Camera.main.gameObject.transform.DOLocalMoveY(0, 0.25f).From(10).SetEase(Ease.InOutBounce).OnComplete(() => {
+                tiles = new GameObject[(int)Mathf.Pow(gridDimension, 2)]; 
+                mg = this.GetComponent<MatrixGenerator>(); 
+                gsu = this.GetComponent<GameScreenUtility>(); 
+                mg.FullMatrixInit(min, max);
+                highScore = PlayerPrefs.GetInt("HighScore");
+                StartCoroutine(GridMaker());
+            });
+        }
+    }
+
+    public void Continue(){
+        Camera.main.gameObject.transform.DOLocalMoveX(0, 0.25f).From(-10).OnComplete( () => {
+            creationIndex = 0;
+            numTileCount = 0;
+            tiles = new GameObject[(int)Mathf.Pow(gridDimension, 2)];
+            timer = 15f;
+            isGameStartable = false;
+            pressCounter = 0;
             mg.FullMatrixInit(min, max);
             highScore = PlayerPrefs.GetInt("HighScore");
-            StartCoroutine(GridMaker());
+            StartCoroutine(GridMaker());        
+            isGameOver = false;
+            gsu.isRunned = false;
         });
-        
     }
 
     void Update(){
@@ -45,6 +71,15 @@ public class GameManager : MonoBehaviour
             CreateTiles();
             TileOnTouch();
             ScoreAndTimeController();
+        }
+        if(isGameOver){
+            ScreenClearer();
+        }
+    }
+
+    public void ScreenClearer(){
+        foreach(GameObject _tile in tiles){
+            Destroy(_tile, 1f);
         }
     }
 
@@ -80,6 +115,7 @@ public class GameManager : MonoBehaviour
                     mg.UpdateMatrix(creationIndex, min, max);
                 }
                 scrptTile.UpdateTileSettings(gameColorLight[3], gameColorLight[0], 7f, mg.SetTileNumber(creationIndex), creationIndex, true);
+                scrptTile.transform.DOPunchScale(new Vector3(0.05f,0.05f,0.05f), 0.5f);
                 numTileCount++;
                 creationIndex++;           
             }
@@ -93,6 +129,7 @@ public class GameManager : MonoBehaviour
                 if(hitInfo.transform.name !=  ((Mathf.Pow(gridDimension, 2)-1)/2).ToString()){
                     Tile scrptTile = hitInfo.transform.GetComponent<Tile>();
                     if(scrptTile.isInteractable){
+                        scrptTile.transform.DOPunchScale(new Vector3(0.05f,0.05f,0.05f), 0.5f);
                         int[] t = scrptTile.TileOnTouch();
                         numberInTile = t[0];
                         creationIndex = t[1];

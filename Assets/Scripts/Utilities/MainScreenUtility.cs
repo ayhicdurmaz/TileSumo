@@ -11,9 +11,7 @@ public class MainScreenUtility : MonoBehaviour
 
     private void Start(){
         sb = this.GetComponent<ShareButton>();
-        Debug.Log(GoogleAds.getSceneChange);
         Camera.main.gameObject.transform.DOLocalMoveY(0, 0.25f).From(-10);
-
     }
 
     private void Update() {
@@ -24,8 +22,8 @@ public class MainScreenUtility : MonoBehaviour
         if(Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began){ 
            RaycastHit2D hitInfo = Physics2D.GetRayIntersection(Camera.main.ScreenPointToRay(Input.GetTouch(0).position));
             if(hitInfo.transform != null){
-                if(hitInfo.transform.name == "Play(Button)"){
-                    PlayButtonPressed();
+                if(hitInfo.transform.name == "Play(Button)"){ 
+                    PlayButtonPressed();    
                 }
                 if(hitInfo.transform.name == "Rank(Button)"){
                     //TODO Add google play rank
@@ -40,8 +38,9 @@ public class MainScreenUtility : MonoBehaviour
     }
 
     public void PlayButtonPressed(){
+        Singleton.isFromReplay = false;
         Camera.main.gameObject.transform.DOLocalMoveY(-10, 0.25f).OnComplete(() => {
-            GoogleAds.getSceneChange+=1;
+            Singleton.getSceneChange+=1;
             SceneManager.LoadScene(1);
         });
     }
