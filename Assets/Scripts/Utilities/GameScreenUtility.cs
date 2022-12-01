@@ -6,13 +6,13 @@ using DG.Tweening;
 
 public class GameScreenUtility : MonoBehaviour
 {
-    [SerializeField] private GameObject[] gameObjects; //gameScreen = 0, pauseScreen = 1, gameOverScreen = 2, HomeScreen = 3
+    [SerializeField] private AudioSource buttonSound;
 
-    public bool isOnPause = false, isRunned = false;
+    public bool isOnPause = false, isRunned = false, isMute;
     GameManager gm;
     
     public void Start(){
-        Debug.Log(Singleton.getSceneChange);
+        buttonSound.mute = PlayerPrefs.GetInt("Mute") == 1 ? true : false;  
         gm = this.GetComponent<GameManager>();
     }
 
@@ -26,11 +26,9 @@ public class GameScreenUtility : MonoBehaviour
 
     void ButtonOnTouch(){
         if(Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began){ 
-           RaycastHit2D hitInfo = Physics2D.GetRayIntersection(Camera.main.ScreenPointToRay(Input.GetTouch(0).position));
-           Debug.Log(hitInfo.transform.name);
+            RaycastHit2D hitInfo = Physics2D.GetRayIntersection(Camera.main.ScreenPointToRay(Input.GetTouch(0).position));
             if(hitInfo.transform != null){
                 if(hitInfo.transform.name == "Continue(Button)" || hitInfo.transform.name == "WatchAd(Button)"){
-                    Debug.Log("wahtcad");
                     WatchAdToContinueButtonPressed();
                 }
                 if(hitInfo.transform.name == "Pause(Button)"){
@@ -49,7 +47,14 @@ public class GameScreenUtility : MonoBehaviour
         }
     }
 
+    void PlaySound(){
+        Debug.Log(PlayerPrefs.GetInt("Mute"));
+        buttonSound.mute = PlayerPrefs.GetInt("Mute") == 1 ? true : false;  
+        buttonSound.Play();
+    }
+
     void PauseButtonPressed(){
+        PlaySound();
         Camera.main.gameObject.transform.DOLocalMoveX(20, 0.5f).OnComplete(()=>{
             isOnPause = true;
             Time.timeScale = 0;
@@ -58,21 +63,23 @@ public class GameScreenUtility : MonoBehaviour
 
     void ResumeButtonPressed(){
         Time.timeScale = 1;
+        PlaySound();
         Camera.main.gameObject.transform.DOLocalMoveX(0, 0.5f).OnComplete(() => {
             isOnPause = false;
         }); 
     }
 
     void HomeButtonPressed(){
+        PlaySound();
         Camera.main.gameObject.transform.DOLocalMoveY(10, 0.25f).OnComplete(() => {
             Singleton.getSceneChange+=1;
             SceneManager.LoadScene(0);
             Time.timeScale = 1;
         });
-        
     }
 
     void ReplayButtonPressed(){
+        PlaySound();
         Singleton.isFromReplay = true;
         Camera.main.gameObject.transform.DOLocalMoveX(-10, 0.25f).OnComplete(() => {
             Singleton.getSceneChange+=1;
@@ -81,6 +88,7 @@ public class GameScreenUtility : MonoBehaviour
     }
 
     void WatchAdToContinueButtonPressed(){
+        PlaySound();
         Singleton.isFromReplay = true;
         Camera.main.gameObject.transform.DOLocalMoveX(-10, 0.25f).OnComplete(() => {
             gm.Continue();

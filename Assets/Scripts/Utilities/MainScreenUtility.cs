@@ -7,9 +7,14 @@ using DG.Tweening;
 
 public class MainScreenUtility : MonoBehaviour
 {
+    [SerializeField] private AudioSource buttonSound;
+    private bool isMute;
     ShareButton sb;
 
     private void Start(){
+        isMute = PlayerPrefs.GetInt("Mute") == 1 ? true : false;
+        GameObject.Find("Mute(Button)").GetComponent<TextMeshPro>().text = isMute ? "unmute" : "mute";
+        buttonSound.mute = isMute;
         sb = this.GetComponent<ShareButton>();
         Camera.main.gameObject.transform.DOLocalMoveY(0, 0.25f).From(-10);
     }
@@ -33,11 +38,15 @@ public class MainScreenUtility : MonoBehaviour
                 if(hitInfo.transform.name == "Share(Button)"){
                     ShareButtonPressed();
                 }
+                if(hitInfo.transform.name == "Mute(Button)"){
+                    MuteButtonPressed(hitInfo.transform.GetComponent<TextMeshPro>());
+                }
             }
         }
     }
 
     public void PlayButtonPressed(){
+        buttonSound.Play();
         Singleton.isFromReplay = false;
         Camera.main.gameObject.transform.DOLocalMoveY(-10, 0.25f).OnComplete(() => {
             Singleton.getSceneChange+=1;
@@ -48,6 +57,17 @@ public class MainScreenUtility : MonoBehaviour
         //TODO
     }
     public void ShareButtonPressed(){
+        buttonSound.Play();
         sb.OnAndroidTextSharingClick();
+    }
+    public void MuteButtonPressed(TextMeshPro _text){
+        isMute = !isMute;
+        buttonSound.mute = isMute;  
+        PlayerPrefs.SetInt("Mute", isMute ? 1 : 0);      
+        if(PlayerPrefs.GetInt("Mute") == 1 ? true : false){
+            _text.text = "unmute";
+        }else{
+            _text.text = "mute";
+        }
     }
 }

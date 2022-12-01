@@ -26,8 +26,13 @@ public class GameManager : MonoBehaviour
 
     public float score, highScore, timer = 16, extraTime = 3f;
     public bool isGameOver = false, isGameStartable = false;
+    
+    //Sound
+    [SerializeField] private AudioSource tileSound;
+
 
     private void Start(){
+        tileSound.mute = PlayerPrefs.GetInt("Mute") == 1 ? true : false; 
         Camera.main.backgroundColor = gameColorLight[0];
         if(Singleton.isFromReplay){
             Camera.main.gameObject.transform.DOLocalMoveX(0, 0.25f).From(-10).OnComplete(() => {
@@ -75,6 +80,11 @@ public class GameManager : MonoBehaviour
         if(isGameOver){
             ScreenClearer();
         }
+    }
+
+    void PlaySound(){
+        tileSound.mute = PlayerPrefs.GetInt("Mute") == 1 ? true : false;  
+        tileSound.Play();
     }
 
     public void ScreenClearer(){
@@ -130,6 +140,7 @@ public class GameManager : MonoBehaviour
                     Tile scrptTile = hitInfo.transform.GetComponent<Tile>();
                     if(scrptTile.isInteractable){
                         scrptTile.transform.DOPunchScale(new Vector3(0.05f,0.05f,0.05f), 0.5f);
+                        PlaySound();
                         int[] t = scrptTile.TileOnTouch();
                         numberInTile = t[0];
                         creationIndex = t[1];
