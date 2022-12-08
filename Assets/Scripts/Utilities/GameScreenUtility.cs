@@ -70,6 +70,7 @@ public class GameScreenUtility : MonoBehaviour
     }
 
     void HomeButtonPressed(){
+        Time.timeScale = 1;
         PlaySound();
         Camera.main.gameObject.transform.DOLocalMoveY(10, 0.25f).OnComplete(() => {
             Singleton.getSceneChange+=1;

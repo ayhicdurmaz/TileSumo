@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 2affa22ae29033d4d929a458e8df7c33
+guid: 6e106b1a543036249beb207ecd3d6d00
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - SUMMER Camp
+  - SUBSCRIBER
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0
