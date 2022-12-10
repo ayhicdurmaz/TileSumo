@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using DG.Tweening;
@@ -35,6 +34,7 @@ public class GameManager : MonoBehaviour
         tileSound.mute = PlayerPrefs.GetInt("Mute") == 1 ? true : false; 
         Camera.main.backgroundColor = gameColorLight[0];
         if(Singleton.isFromReplay){
+            Debug.Log("İt is here");
             Camera.main.gameObject.transform.DOLocalMoveX(0, 0.25f).From(-10).OnComplete(() => {
                 tiles = new GameObject[(int)Mathf.Pow(gridDimension, 2)]; 
                 mg = this.GetComponent<MatrixGenerator>(); 

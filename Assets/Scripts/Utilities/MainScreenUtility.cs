@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
@@ -33,7 +31,7 @@ public class MainScreenUtility : MonoBehaviour
                 if(hitInfo.transform.name == "Rank(Button)"){
                     //TODO Add google play rank
                     //RankButtonPressed();
-                    hitInfo.transform.gameObject.GetComponent<TextMeshPro>().text = "Coming Soon";
+                    hitInfo.transform.gameObject.GetComponent<TextMeshPro>().text = "COMING SOON";
                 }
                 if(hitInfo.transform.name == "Share(Button)"){
                     ShareButtonPressed();

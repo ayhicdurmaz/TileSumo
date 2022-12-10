@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using DG.Tweening;
@@ -48,7 +46,6 @@ public class GameScreenUtility : MonoBehaviour
     }
 
     void PlaySound(){
-        Debug.Log(PlayerPrefs.GetInt("Mute"));
         buttonSound.mute = PlayerPrefs.GetInt("Mute") == 1 ? true : false;  
         buttonSound.Play();
     }
@@ -82,6 +79,7 @@ public class GameScreenUtility : MonoBehaviour
     void ReplayButtonPressed(){
         PlaySound();
         Singleton.isFromReplay = true;
+        Debug.Log("its here");
         Camera.main.gameObject.transform.DOLocalMoveX(-10, 0.25f).OnComplete(() => {
             Singleton.getSceneChange+=1;
             SceneManager.LoadScene(1);
@@ -89,9 +87,10 @@ public class GameScreenUtility : MonoBehaviour
     }
 
     void WatchAdToContinueButtonPressed(){
-        PlaySound();
+        PlaySound();        
         Singleton.isFromReplay = true;
         Camera.main.gameObject.transform.DOLocalMoveX(-10, 0.25f).OnComplete(() => {
+            GameObject.Find("AdsManager").GetComponent<AdsManager>().UserChoseToWatchAd();
             gm.Continue();
         });
     }
